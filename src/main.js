@@ -97,7 +97,6 @@ function createIndexes(data, sellerStats) {
 }
 
 function processPurchaseRecords(records, sellerIndex, productIndex, calculateRevenue) {
-    function processPurchaseRecords(records, sellerIndex, productIndex, calculateRevenue) {
         records.forEach(record => {
             const seller = sellerIndex[record.seller_id];
             if (!seller) return;
@@ -124,7 +123,7 @@ function processPurchaseRecords(records, sellerIndex, productIndex, calculateRev
     
             seller.revenue += receiptRevenue;
         });
-    }
+    
 }
 
 function calculateBonusesAndTopProducts(sellerStats, calculateBonus) {
