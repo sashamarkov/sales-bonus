@@ -38,12 +38,14 @@ function calculateBonusByProfit(index, total, seller) {
  */
 function analyzeSalesData(data, options) {
     validateInputData(data);
+    
     const { calculateRevenue, calculateBonus } = validateOptions(options);
     
     const sellerStats = prepareSellerStats(data.sellers);
+
     const { sellerIndex, productIndex } = createIndexes(data, sellerStats);
-    
-    processPurchaseRecords(data.purchase_records, sellerIndex, productIndex, calculateRevenue);
+
+    processPurchaseRecords(data.purchase_records, sellerStats, sellerIndex, productIndex, calculateRevenue);
     
     sellerStats.sort((a, b) => b.profit - a.profit);
     
@@ -98,7 +100,7 @@ function createIndexes(data, sellerStats) {
 }
 
 
-function processPurchaseRecords(records, sellerIndex, productIndex, calculateRevenue) {
+function processPurchaseRecords(records, sellerStats, sellerIndex, productIndex, calculateRevenue) {
     records.forEach(record => { 
         const seller = sellerIndex[record.seller_id];
 
@@ -109,7 +111,6 @@ function processPurchaseRecords(records, sellerIndex, productIndex, calculateRev
             }
         })
 
-        
         record.items.forEach(item => {
             const product = productIndex[item.sku];
             const cost = product.purchase_price * item.quantity;
