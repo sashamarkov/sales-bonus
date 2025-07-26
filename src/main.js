@@ -96,34 +96,67 @@ function createIndexes(data, sellerStats) {
     return { sellerIndex, productIndex };
 }
 
+// function processPurchaseRecords(records, sellerIndex, productIndex, calculateRevenue) {
+//         records.forEach(record => {
+//             const seller = sellerIndex[record.seller_id];
+//             if (!seller) return;
+    
+//             seller.sales_count += 1;
+//             let receiptRevenue = 0;
+    
+//             record.items.forEach(item => {
+//                 const product = productIndex[item.sku];
+//                 if (!product) return;
+    
+//                 const revenue = calculateRevenue(item, product);
+//                 const cost = product.purchase_price * item.quantity;
+//                 const profit = revenue - cost;
+    
+//                 seller.profit += profit;
+//                 receiptRevenue += revenue;
+    
+//                 if (!seller.products_sold[item.sku]) {
+//                     seller.products_sold[item.sku] = 0;
+//                 }
+//                 seller.products_sold[item.sku] += item.quantity;
+//             });
+    
+//             seller.revenue += receiptRevenue;
+//         });
+    
+// }
+
+
 function processPurchaseRecords(records, sellerIndex, productIndex, calculateRevenue) {
-        records.forEach(record => {
-            const seller = sellerIndex[record.seller_id];
-            if (!seller) return;
-    
-            seller.sales_count += 1;
-            let receiptRevenue = 0;
-    
-            record.items.forEach(item => {
-                const product = productIndex[item.sku];
-                if (!product) return;
-    
-                const revenue = calculateRevenue(item, product);
-                const cost = product.purchase_price * item.quantity;
-                const profit = revenue - cost;
-    
-                seller.profit += profit;
-                receiptRevenue += revenue;
-    
-                if (!seller.products_sold[item.sku]) {
-                    seller.products_sold[item.sku] = 0;
-                }
-                seller.products_sold[item.sku] += item.quantity;
-            });
-    
-            seller.revenue += receiptRevenue;
+    records.forEach(record => {
+        const seller = sellerIndex[record.seller_id];
+        if (!seller) return;
+
+        seller.sales_count += 1;
+        
+        let receiptRevenue = 0;
+        let receiptProfit = 0;
+
+        record.items.forEach(item => {
+            const product = productIndex[item.sku];
+            if (!product) return;
+
+            const itemRevenue = calculateRevenue(item, product);
+            const itemCost = product.purchase_price * item.quantity;
+            const itemProfit = itemRevenue - itemCost;
+
+            receiptRevenue += itemRevenue;
+            receiptProfit += itemProfit;
+
+            if (!seller.products_sold[item.sku]) {
+                seller.products_sold[item.sku] = 0;
+            }
+            seller.products_sold[item.sku] += item.quantity;
         });
-    
+
+        seller.revenue += Math.round((receiptRevenue + Number.EPSILON) * 100) / 100;
+        seller.profit += Math.round((receiptProfit + Number.EPSILON) * 100) / 100;
+    });
 }
 
 function calculateBonusesAndTopProducts(sellerStats, calculateBonus) {
@@ -138,13 +171,19 @@ function calculateBonusesAndTopProducts(sellerStats, calculateBonus) {
 }
 
 function formatResult(sellerStats) {
-    return sellerStats.map(seller => ({
-        seller_id: seller.id,
-        name: seller.name,
-        revenue: Math.round(seller.revenue * 100) / 100,
-        profit: Math.round(seller.profit * 100) / 100,
-        sales_count: seller.sales_count,
-        top_products: seller.top_products,
-        bonus: Math.round(seller.bonus * 100) / 100
-    }));
+    return sellerStats.map(seller => {
+        const roundMoney = (value) => {
+            return Math.round((value + Number.EPSILON) * 100) / 100;
+        };
+
+        return {
+            seller_id: seller.id,
+            name: seller.name,
+            revenue: roundMoney(seller.revenue),
+            profit: roundMoney(seller.profit),
+            sales_count: seller.sales_count,
+            top_products: seller.top_products,
+            bonus: roundMoney(seller.bonus)
+        };
+    });
 }
