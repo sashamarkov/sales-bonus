@@ -6,9 +6,7 @@
  */
 function calculateSimpleRevenue(purchase, _product) {
     const { discount, sale_price, quantity } = purchase;
-    const discountFactor = 1 - (discount / 100);
-    const revenue = sale_price * quantity * discountFactor;
-    return revenue; 
+    return sale_price * quantity * (1 - (discount / 100));
 }
 
 /**
@@ -112,9 +110,9 @@ function processPurchaseRecords(records, sellerIndex, productIndex, calculateRev
 
         record.items.forEach(item => {
             const product = productIndex[item.sku];
-            if (!product) return;
+            //if (!product) return;
 
-            const itemRevenue = calculateRevenue(item, product);
+            const itemRevenue = calculateRevenue(item);
             const itemCost = product.purchase_price * item.quantity;
             const itemProfit = itemRevenue - itemCost;
 
