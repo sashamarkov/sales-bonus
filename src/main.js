@@ -8,7 +8,7 @@ function calculateSimpleRevenue(purchase, _product) {
     const { discount, sale_price, quantity } = purchase;
     const discountFactor = 1 - (discount / 100);
     const revenue = sale_price * quantity * discountFactor;
-    return parseFloat(revenue.toFixed(2));
+    return roundMoney(revenue); 
 }
 
 /**
@@ -156,8 +156,8 @@ function processPurchaseRecords(records, sellerIndex, productIndex, calculateRev
             seller.products_sold[item.sku] += item.quantity;
         });
 
-        seller.revenue += Math.round((receiptRevenue + Number.EPSILON) * 100) / 100;
-        seller.profit += Math.round((receiptProfit + Number.EPSILON) * 100) / 100;
+        seller.revenue += receiptRevenue;  
+        seller.profit += receiptProfit;    
     });
 }
 
