@@ -43,35 +43,7 @@ function analyzeSalesData(data, options) {
     const sellerStats = prepareSellerStats(data.sellers);
     const { sellerIndex, productIndex } = createIndexes(data, sellerStats);
     
-    data.purchase_records.forEach(record => { 
-        const seller = sellerIndex[record.seller_id];
-
-        sellerStats.map(item => {
-            if (item.id === seller.id) {
-                item.sales_count++;
-                item.revenue += +record.total_amount;
-            }
-        })
-
-        
-        record.items.forEach(item => {
-            const product = productIndex[item.sku];
-            const cost = product.purchase_price * item.quantity;
-            const rev = calculateRevenue(item);
-
-            sellerStats.map(value => {
-                if (value.id === seller.id) {
-                    value.profit += rev - cost;
-                    
-                    if (!value.products_sold[item.sku]) {
-                        value.products_sold[item.sku] = 0;
-                    }
-                    
-                    value.products_sold[item.sku] += item.quantity;
-                }
-            })
-        });
-    });
+    processPurchaseRecords(data.purchase_records, sellerIndex, productIndex, calculateRevenue);
     
     sellerStats.sort((a, b) => b.profit - a.profit);
     
@@ -127,34 +99,34 @@ function createIndexes(data, sellerStats) {
 
 
 function processPurchaseRecords(records, sellerIndex, productIndex, calculateRevenue) {
-    records.forEach(record => {
+    records.forEach(record => { 
         const seller = sellerIndex[record.seller_id];
-        if (!seller) return;
 
-        seller.sales_count += 1;
+        sellerStats.map(item => {
+            if (item.id === seller.id) {
+                item.sales_count++;
+                item.revenue += +record.total_amount;
+            }
+        })
+
         
-        let receiptRevenue = 0;
-        let receiptProfit = 0;
-
         record.items.forEach(item => {
             const product = productIndex[item.sku];
-            //if (!product) return;
+            const cost = product.purchase_price * item.quantity;
+            const rev = calculateRevenue(item);
 
-            const itemRevenue = calculateRevenue(item);
-            const itemCost = product.purchase_price * item.quantity;
-            const itemProfit = itemRevenue - itemCost;
-
-            receiptRevenue += itemRevenue;
-            receiptProfit += itemProfit;
-
-            if (!seller.products_sold[item.sku]) {
-                seller.products_sold[item.sku] = 0;
-            }
-            seller.products_sold[item.sku] += item.quantity;
+            sellerStats.map(value => {
+                if (value.id === seller.id) {
+                    value.profit += rev - cost;
+                    
+                    if (!value.products_sold[item.sku]) {
+                        value.products_sold[item.sku] = 0;
+                    }
+                    
+                    value.products_sold[item.sku] += item.quantity;
+                }
+            })
         });
-
-        seller.revenue += receiptRevenue;  
-        seller.profit += receiptProfit;    
     });
 }
 
