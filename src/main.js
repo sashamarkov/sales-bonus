@@ -97,29 +97,34 @@ function createIndexes(data, sellerStats) {
 }
 
 function processPurchaseRecords(records, sellerIndex, productIndex, calculateRevenue) {
-    records.forEach(record => {
-        const seller = sellerIndex[record.seller_id];
-        if (!seller) return;
-
-        seller.sales_count += 1;
-        seller.revenue += record.total_amount - record.total_discount;
-
-        record.items.forEach(item => {
-            const product = productIndex[item.sku];
-            if (!product) return;
-
-            const cost = product.purchase_price * item.quantity;
-            const revenue = calculateRevenue(item, product);
-            const profit = revenue - cost;
-
-            seller.profit += profit;
-
-            if (!seller.products_sold[item.sku]) {
-                seller.products_sold[item.sku] = 0;
-            }
-            seller.products_sold[item.sku] += item.quantity;
+    function processPurchaseRecords(records, sellerIndex, productIndex, calculateRevenue) {
+        records.forEach(record => {
+            const seller = sellerIndex[record.seller_id];
+            if (!seller) return;
+    
+            seller.sales_count += 1;
+            let receiptRevenue = 0;
+    
+            record.items.forEach(item => {
+                const product = productIndex[item.sku];
+                if (!product) return;
+    
+                const revenue = calculateRevenue(item, product);
+                const cost = product.purchase_price * item.quantity;
+                const profit = revenue - cost;
+    
+                seller.profit += profit;
+                receiptRevenue += revenue;
+    
+                if (!seller.products_sold[item.sku]) {
+                    seller.products_sold[item.sku] = 0;
+                }
+                seller.products_sold[item.sku] += item.quantity;
+            });
+    
+            seller.revenue += receiptRevenue;
         });
-    });
+    }
 }
 
 function calculateBonusesAndTopProducts(sellerStats, calculateBonus) {
