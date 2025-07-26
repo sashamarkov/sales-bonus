@@ -141,10 +141,10 @@ function formatResult(sellerStats) {
     return sellerStats.map(seller => ({
         seller_id: seller.id,
         name: seller.name,
-        revenue: +seller.revenue.toFixed(2),
-        profit: +seller.profit.toFixed(2),
+        revenue: Math.round(seller.revenue * 100) / 100,
+        profit: Math.round(seller.profit * 100) / 100,
         sales_count: seller.sales_count,
         top_products: seller.top_products,
-        bonus: +seller.bonus.toFixed(2)
+        bonus: Math.round(seller.bonus * 100) / 100
     }));
 }
