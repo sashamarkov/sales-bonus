@@ -8,7 +8,7 @@ function calculateSimpleRevenue(purchase, _product) {
     const { discount, sale_price, quantity } = purchase;
     const discountFactor = 1 - (discount / 100);
     const revenue = sale_price * quantity * discountFactor;
-    return roundMoney(revenue); 
+    return revenue; 
 }
 
 /**
@@ -22,13 +22,14 @@ function calculateBonusByProfit(index, total, seller) {
     const { profit } = seller;
     
     if (index === 0) {
-        return roundMoney(profit * 0.15);
+        return +(profit * 0.15).toFixed(2);
     } else if (index === 1 || index === 2) {
-        return roundMoney(profit * 0.10);
+        return +(profit * 0.10).toFixed(2);
     } else if (index === total - 1) {
         return 0;
+    } else { 
+        return +(profit * 0.05).toFixed(2);
     }
-    return roundMoney(profit * 0.05);
 }
 
 /**
@@ -98,36 +99,6 @@ function createIndexes(data, sellerStats) {
     return { sellerIndex, productIndex };
 }
 
-// function processPurchaseRecords(records, sellerIndex, productIndex, calculateRevenue) {
-//         records.forEach(record => {
-//             const seller = sellerIndex[record.seller_id];
-//             if (!seller) return;
-    
-//             seller.sales_count += 1;
-//             let receiptRevenue = 0;
-    
-//             record.items.forEach(item => {
-//                 const product = productIndex[item.sku];
-//                 if (!product) return;
-    
-//                 const revenue = calculateRevenue(item, product);
-//                 const cost = product.purchase_price * item.quantity;
-//                 const profit = revenue - cost;
-    
-//                 seller.profit += profit;
-//                 receiptRevenue += revenue;
-    
-//                 if (!seller.products_sold[item.sku]) {
-//                     seller.products_sold[item.sku] = 0;
-//                 }
-//                 seller.products_sold[item.sku] += item.quantity;
-//             });
-    
-//             seller.revenue += receiptRevenue;
-//         });
-    
-// }
-
 
 function processPurchaseRecords(records, sellerIndex, productIndex, calculateRevenue) {
     records.forEach(record => {
@@ -174,18 +145,14 @@ function calculateBonusesAndTopProducts(sellerStats, calculateBonus) {
 
 function formatResult(sellerStats) {
     return sellerStats.map(seller => {
-        const roundMoney = (value) => {
-            return Math.round((value + Number.EPSILON) * 100) / 100;
-        };
-
         return {
             seller_id: seller.id,
             name: seller.name,
-            revenue: roundMoney(seller.revenue),
-            profit: roundMoney(seller.profit),
+            revenue: +seller.revenue.toFixed(2), 
+            profit: +seller.profit.toFixed(2), 
             sales_count: seller.sales_count,
             top_products: seller.top_products,
-            bonus: roundMoney(seller.bonus)
+            bonus: seller.bonus
         };
     });
 }
