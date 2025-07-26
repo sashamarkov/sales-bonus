@@ -20,13 +20,13 @@ function calculateBonusByProfit(index, total, seller) {
     const { profit } = seller;
     
     if (index === 0) {
-        return +(profit * 0.15).toFixed(2);
+        return roundMoney(profit * 0.15);
     } else if (index === 1 || index === 2) {
-        return +(profit * 0.10).toFixed(2);
+        return roundMoney(profit * 0.10);
     } else if (index === total - 1) {
         return 0;
     } else { 
-        return +(profit * 0.05).toFixed(2);
+        return roundMoney(profit * 0.05);
     }
 }
 
@@ -38,7 +38,7 @@ function calculateBonusByProfit(index, total, seller) {
  */
 function analyzeSalesData(data, options) {
     validateInputData(data);
-    
+
     const { calculateRevenue, calculateBonus } = validateOptions(options);
     
     const sellerStats = prepareSellerStats(data.sellers);
@@ -147,8 +147,8 @@ function formatResult(sellerStats) {
         return {
             seller_id: seller.id,
             name: seller.name,
-            revenue: +seller.revenue.toFixed(2), 
-            profit: +seller.profit.toFixed(2), 
+            revenue: roundMoney(seller.revenue), 
+            profit: roundMoney(seller.profit), 
             sales_count: seller.sales_count,
             top_products: seller.top_products,
             bonus: seller.bonus
