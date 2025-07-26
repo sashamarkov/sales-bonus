@@ -22,15 +22,13 @@ function calculateBonusByProfit(index, total, seller) {
     const { profit } = seller;
     
     if (index === 0) {
-        profit *= 0.15;
+        return roundMoney(profit * 0.15);
     } else if (index === 1 || index === 2) {
-        profit *= 0.10;
+        return roundMoney(profit * 0.10);
     } else if (index === total - 1) {
-        profit = 0;
-    } else {
-        profit *= 0.05;
+        return 0;
     }
-    return parseFloat(profit.toFixed(2));
+    return roundMoney(profit * 0.05);
 }
 
 /**
@@ -54,6 +52,8 @@ function analyzeSalesData(data, options) {
     
     return formatResult(sellerStats);
 }
+
+const roundMoney = (value) => Math.round((value + Number.EPSILON) * 100) / 100;
 
 function validateInputData(data) {
     if (!data 
@@ -189,3 +189,5 @@ function formatResult(sellerStats) {
         };
     });
 }
+
+
