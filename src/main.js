@@ -22,14 +22,15 @@ function calculateBonusByProfit(index, total, seller) {
     const { profit } = seller;
     
     if (index === 0) {
-        return profit * 0.15;
+        profit *= 0.15;
     } else if (index === 1 || index === 2) {
-        return profit * 0.10;
+        profit *= 0.10;
     } else if (index === total - 1) {
-        return 0;
+        profit = 0;
     } else {
-        return profit * 0.05;
+        profit *= 0.05;
     }
+    return parseFloat(profit.toFixed(2));
 }
 
 /**
